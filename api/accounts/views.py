@@ -5,6 +5,7 @@ from .serializers import (
     PasswordChangeSerializer,
     LoginSerializer,
     LogoutSerializer,
+    AccessRefreshSerializer
     )
 from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.views import APIView
@@ -81,7 +82,8 @@ class LogoutView(APIView):
             data = {"status": False, "message": str(e)}
             return Response(data=data, status=405)
 
-
+class AccessRefreshView(TokenRefreshView):
+    serializer_class = AccessRefreshSerializer
 
 
 
