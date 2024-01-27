@@ -139,7 +139,44 @@ class AccessRefreshSerializer(TokenRefreshSerializer):
 
         return data
 
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField(write_only = True, required=True)
 
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        if check_email(attrs['email']):
+            if User.objects.filter(email = attrs['email']).exists():
+                return attrs
+            else:
+                data = {
+                    'status' : False,
+                    'message' : 'There is not user via this email'
+                } 
+                raise ValidationError(data)
+        data = {
+            'status' : False,
+            'message' : 'are you sure you typed email bro?'
+        }
+        raise ValidationError(data)
 
+class PasswordResetViaCodeSerializer(serializers.Serializer):
+    password1 = serializers.CharField(write_only = True, validators = [validate_password])
+    password2 = serializers.CharField(write_only = True)
+    code = serializers.CharField(write_only = True, required = True)
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        if attrs['password1'] != attrs['password2']:
+            data = {
+                'status' : False,
+                'message' : 'passwords are not equal!'
+            }
+            raise ValidationError(data)
+        return attrs
+    
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
 
 

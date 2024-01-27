@@ -11,8 +11,24 @@ from rest_framework.response import Response
 
 # Create your views here.
 
+class ListNewsView(APIView):
+    permission_classes = (AllowAny, )
+    serializer_class = NewsSerializer
 
-
+    def get(self, request):
+        try:
+            news = News.objects.all()
+            serializer = self.serializer_class(instance=news, many=True)
+            data = {
+                'data': serializer.data
+            }
+            return Response(data)
+        except Exception as ex:
+            data = {
+                'status' : False,
+                "message" : f'{ex}'
+            }
+            raise ValidationError(data)
 
 class CreateNewsView(APIView):
     permission_classes = (IsAuthenticated, )
@@ -34,25 +50,6 @@ class CreateNewsView(APIView):
         }
         raise ValidationError(data)
 
-class ListNewsView(APIView):
-    permission_classes = (AllowAny, )
-    serializer_class = NewsSerializer
-
-    def get(self, request):
-        try:
-            news = News.objects.all()
-            serializer = self.serializer_class(instance=news, many=True)
-            data = {
-                'data': serializer.data
-            }
-            return Response(data)
-        except Exception as ex:
-            data = {
-                'status' : False,
-                "message" : f'{ex}'
-            }
-            raise ValidationError(data)
-
 class RetrieveNewsView(APIView):
     permission_classes = (AllowAny, )
     serializer_class = NewsSerializer
@@ -72,8 +69,6 @@ class UpdateNewsView(APIView):
         data = request.data
         new = get_object_or_404(News, uuid=uuid)
         if new.author.id != request.user.id:
-            print(request.user.id)
-            print(new.author.id)
             data = {
                 'status' : False,
                 'message' : 'you cannot update article which you did not create!'
@@ -99,8 +94,6 @@ class DeleteNewsView(APIView):
     def delete(self, request, uuid):
         new = get_object_or_404(News, uuid=uuid)
         if new.author.id != request.user.id:
-            print(request.user.id)
-            print(new.author.id)
             data = {
                 'status' : False,
                 'message' : 'you cannot delete article which you did not create!'
