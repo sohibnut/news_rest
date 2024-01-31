@@ -41,8 +41,8 @@ class PersonalDataView(UpdateAPIView):
             "status" : True,
             'message' : 'Personal data changed successfully',
         }
-
         return Response(data)
+        
     
 class PasswordChangeView(UpdateAPIView):
     permission_classes = (IsAuthenticated, )

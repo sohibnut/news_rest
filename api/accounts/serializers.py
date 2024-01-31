@@ -62,6 +62,16 @@ class PersonalDataSerializer(serializers.Serializer):
     ])
     email = serializers.EmailField(write_only=True, required=True)
 
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        if User.objects.filter(email = data['email']).exists():
+            data = {
+                'status' : False,
+                'message' : 'email already exists'
+            }
+            raise ValidationError(data)
+        return data
+    
     def update(self, instance, validated_data):
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
